@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UK Company Risk Comparison</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --blue: #4674bf;
+      --blue-dark: #315b9c;
+      --row-a: #cbd3e6;
+      --row-b: #e3e7f2;
+      --ink: #10151f;
+      --muted: #5d6678;
+      --line: #ffffff;
+      --paper: #f7f9fc;
+      --success: #1b7f50;
+      --warning: #b05f00;
+      --shadow: 0 18px 45px rgba(23, 39, 76, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(120deg, rgba(70, 116, 191, 0.12), rgba(27, 127, 80, 0.08)),
+        var(--paper);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.65rem, 4vw, 2.6rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.45;
+      font-size: 1rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      min-height: 42px;
+      padding: 0 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(49, 91, 156, 0.2);
+    }
+
+    button.secondary {
+      background: #dde5f4;
+      color: var(--blue-dark);
+      box-shadow: none;
+    }
+
+    button:focus-visible,
+    .chip:focus-visible,
+    .dropzone:focus-visible {
+      outline: 3px solid #f2b94b;
+      outline-offset: 2px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .table-shell,
+    .palette,
+    .sources {
+      background: #fff;
+      border: 1px solid #d9e0ee;
+      box-shadow: var(--shadow);
+    }
+
+    .table-shell {
+      overflow: auto;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border: 2px solid var(--line);
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    thead th {
+      background: var(--blue);
+      color: #fff;
+      font-size: 1.35rem;
+      line-height: 1.25;
+    }
+
+    thead th:first-child {
+      width: 31%;
+    }
+
+    tbody th {
+      width: 31%;
+      font-size: 1.12rem;
+      font-weight: 500;
+      color: #05070a;
+    }
+
+    tbody tr:nth-child(odd) th,
+    tbody tr:nth-child(odd) td {
+      background: var(--row-a);
+    }
+
+    tbody tr:nth-child(even) th,
+    tbody tr:nth-child(even) td {
+      background: var(--row-b);
+    }
+
+    .dropzone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 58px;
+      border: 2px dashed rgba(49, 91, 156, 0.55);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--muted);
+      font-size: 1.08rem;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .dropzone.over {
+      transform: translateY(-1px);
+      border-color: var(--blue-dark);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .dropzone.filled {
+      border-style: solid;
+      border-color: rgba(16, 21, 31, 0.2);
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .dropzone.correct {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .dropzone.incorrect {
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+
+    .metric-value {
+      display: grid;
+      gap: 5px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .metric-value span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .palette {
+      border-radius: 8px;
+      padding: 14px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .palette h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .chip-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      border-radius: 6px;
+      border: 1px solid rgba(49, 91, 156, 0.22);
+      background: #edf3ff;
+      color: var(--blue-dark);
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .chip:active {
+      cursor: grabbing;
+    }
+
+    .status {
+      min-height: 24px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 0.95rem;
+    }
+
+    .sources {
+      margin-top: 18px;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .sources a {
+      color: var(--blue-dark);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 860px) {
+      main {
+        width: min(100% - 20px, 1180px);
+        margin-top: 16px;
+      }
+
+      .topbar,
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      button {
+        flex: 1 1 150px;
+      }
+
+      .palette {
+        position: static;
+        order: -1;
+      }
+
+      .chip-stack {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      thead th {
+        font-size: 1.05rem;
+      }
+
+      th,
+      td {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="topbar" aria-labelledby="title">
+      <div>
+        <h1 id="title">UK Company Risk Comparison</h1>
+        <p class="subtitle">Drag either High or Low into every company box. Use High for the larger figure in that row, then reveal the numbers to check the comparison.</p>
+      </div>
+      <div class="controls">
+        <button type="button" id="revealBtn">Reveal numbers</button>
+        <button type="button" class="secondary" id="resetBtn">Reset</button>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="table-shell">
+        <table aria-label="AstraZeneca and Shell financial comparison">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">AstraZeneca PLC (AZN.L)</th>
+              <th scope="col">Shell plc (SHEL.L)</th>
+            </tr>
+          </thead>
+          <tbody id="metricBody"></tbody>
+        </table>
+      </div>
+
+      <aside class="palette" aria-label="Answer choices">
+        <h2>Drag words</h2>
+        <div class="chip-stack">
+          <div class="chip" draggable="true" tabindex="0" role="button" data-choice="high" aria-label="High">High</div>
+          <div class="chip" draggable="true" tabindex="0" role="button" data-choice="low" aria-label="Low">Low</div>
+        </div>
+        <p class="status" id="status">Drop a word into each empty box. Click a box after selecting a word by keyboard.</p>
+      </aside>
+    </section>
+
+    <section class="sources hidden" id="sources">
+      <strong>Sources checked 7 June 2026:</strong>
+      StockAnalysis company statistics for
+      <a href="https://stockanalysis.com/quote/lon/AZN/statistics/">AstraZeneca</a>
+      and <a href="https://stockanalysis.com/quote/lon/SHEL/statistics/">Shell</a>;
+      StockAnalysis quarterly financials for
+      <a href="https://stockanalysis.com/stocks/azn/financials/?p=quarterly">AstraZeneca</a>;
+      Shell Q1 2026 income figures from
+      <a href="https://www.shell.com/investors/results-and-reporting/quarterly-results/_jcr_content/root/main/section/simple_copy/promo_1962010312_cop/links/item1.stream/1778115266512/cad4d5b6af7a44f1bb371e2ea4c468ad5125af11/q1-2026-qra-document.pdf">Shell first-quarter 2026 results</a>.
+    </section>
+  </main>
+
+  <script>
+    const metrics = [
+      {
+        label: "Quarterly earnings growth (YoY)",
+        azn: { value: "5.62%", rank: "low", note: "latest quarter net income growth" },
+        shel: { value: "19.12%", rank: "high", note: "Q1 2026 vs Q1 2025 income attributable" }
+      },
+      {
+        label: "Profit margin",
+        azn: { value: "17.19%", rank: "high", note: "TTM" },
+        shel: { value: "7.01%", rank: "low", note: "TTM" }
+      },
+      {
+        label: "Operating margin",
+        azn: { value: "24.75%", rank: "high", note: "TTM" },
+        shel: { value: "11.49%", rank: "low", note: "TTM" }
+      },
+      {
+        label: "ROE",
+        azn: { value: "23.48%", rank: "high", note: "TTM" },
+        shel: { value: "10.70%", rank: "low", note: "TTM" }
+      },
+      {
+        label: "Leverage (Debt/Equity)",
+        azn: { value: "0.72", rank: "high", note: "latest reported" },
+        shel: { value: "0.43", rank: "low", note: "latest reported" }
+      },
+      {
+        label: "Beta",
+        azn: { value: "0.21", rank: "high", note: "5Y beta" },
+        shel: { value: "-0.25", rank: "low", note: "5Y beta" }
+      },
+      {
+        label: "Overall risk",
+        azn: { value: "Higher relative risk", rank: "high", note: "higher beta and leverage in this comparison" },
+        shel: { value: "Lower relative risk", rank: "low", note: "lower beta and leverage in this comparison" }
+      }
+    ];
+
+    const state = {};
+    let selectedChoice = "";
+    let revealed = false;
+
+    const body = document.getElementById("metricBody");
+    const status = document.getElementById("status");
+    const revealBtn = document.getElementById("revealBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const sources = document.getElementById("sources");
+    const chips = Array.from(document.querySelectorAll(".chip"));
+
+    function cellId(metricIndex, company) {
+      return `${metricIndex}-${company}`;
+    }
+
+    function choiceLabel(choice) {
+      return choice ? choice.charAt(0).toUpperCase() + choice.slice(1) : "Drop High or Low";
+    }
+
+    function render() {
+      body.innerHTML = "";
+
+      metrics.forEach((metric, index) => {
+        const row = document.createElement("tr");
+        const heading = document.createElement("th");
+        heading.scope = "row";
+        heading.textContent = metric.label;
+        row.appendChild(heading);
+
+        ["azn", "shel"].forEach((company) => {
+          const td = document.createElement("td");
+          const id = cellId(index, company);
+
+          if (revealed) {
+            const result = document.createElement("div");
+            result.className = "metric-value";
+            result.innerHTML = `${metric[company].value}<span>${metric[company].rank.toUpperCase()} - ${metric[company].note}</span>`;
+            td.appendChild(result);
+          } else {
+            const zone = document.createElement("div");
+            zone.className = `dropzone${state[id] ? " filled" : ""}`;
+            zone.tabIndex = 0;
+            zone.dataset.id = id;
+            zone.dataset.company = company;
+            zone.dataset.metric = String(index);
+            zone.textContent = choiceLabel(state[id]);
+            zone.setAttribute("role", "button");
+            zone.setAttribute("aria-label", `${metric.label}, ${company === "azn" ? "AstraZeneca" : "Shell"}, ${zone.textContent}`);
+            td.appendChild(zone);
+          }
+
+          row.appendChild(td);
+        });
+
+        body.appendChild(row);
+      });
+
+      if (!revealed) {
+        attachDropzones();
+      }
+    }
+
+    function attachDropzones() {
+      document.querySelectorAll(".dropzone").forEach((zone) => {
+        zone.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          zone.classList.add("over");
+        });
+
+        zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+
+        zone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          zone.classList.remove("over");
+          const choice = event.dataTransfer.getData("text/plain");
+          setChoice(zone.dataset.id, choice);
+        });
+
+        zone.addEventListener("click", () => {
+          if (selectedChoice) {
+            setChoice(zone.dataset.id, selectedChoice);
+          }
+        });
+
+        zone.addEventListener("keydown", (event) => {
+          if ((event.key === "Enter" || event.key === " ") && selectedChoice) {
+            event.preventDefault();
+            setChoice(zone.dataset.id, selectedChoice);
+          }
+        });
+      });
+    }
+
+    function setChoice(id, choice) {
+      if (choice !== "high" && choice !== "low") return;
+      state[id] = choice;
+      status.textContent = `${choiceLabel(choice)} placed.`;
+      render();
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener("dragstart", (event) => {
+        event.dataTransfer.setData("text/plain", chip.dataset.choice);
+      });
+
+      chip.addEventListener("click", () => {
+        selectedChoice = chip.dataset.choice;
+        chips.forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
+        status.textContent = `${choiceLabel(selectedChoice)} selected. Click a table box to place it.`;
+      });
+
+      chip.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          chip.click();
+        }
+      });
+    });
+
+    revealBtn.addEventListener("click", () => {
+      if (revealed) return;
+
+      let correct = 0;
+      let answered = 0;
+      metrics.forEach((metric, index) => {
+        ["azn", "shel"].forEach((company) => {
+          const id = cellId(index, company);
+          if (state[id]) {
+            answered += 1;
+            if (state[id] === metric[company].rank) correct += 1;
+          }
+        });
+      });
+
+      revealed = true;
+      revealBtn.textContent = "Numbers revealed";
+      revealBtn.disabled = true;
+      sources.classList.remove("hidden");
+      status.textContent = `${answered} of ${metrics.length * 2} boxes answered. ${correct} matched the high/low comparison.`;
+      render();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      Object.keys(state).forEach((key) => delete state[key]);
+      selectedChoice = "";
+      revealed = false;
+      revealBtn.disabled = false;
+      revealBtn.textContent = "Reveal numbers";
+      sources.classList.add("hidden");
+      status.textContent = "Drop a word into each empty box. Click a box after selecting a word by keyboard.";
+      chips.forEach((chip) => chip.removeAttribute("aria-pressed"));
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
