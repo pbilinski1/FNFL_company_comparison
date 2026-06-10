@@ -3,995 +3,574 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Operating Gearing Sector Sorter</title>
+  <title>UK Company Comparison</title>
   <style>
     :root {
       color-scheme: light;
-      --ink: #172033;
-      --muted: #667085;
-      --paper: #f5f7fb;
-      --surface: rgba(255, 255, 255, 0.88);
-      --surface-strong: #ffffff;
-      --line: rgba(26, 37, 61, 0.14);
-      --navy: #14233d;
-      --blue: #2563eb;
-      --teal: #0f766e;
-      --amber: #b7791f;
-      --red: #b42318;
-      --green: #117846;
-      --shadow: 0 22px 70px rgba(20, 35, 61, 0.18);
-      --radius: 8px;
+      --blue: #4774bd;
+      --blue-dark: #2d5798;
+      --row-a: #cbd4e8;
+      --row-b: #e5e9f4;
+      --ink: #101520;
+      --muted: #5f687a;
+      --line: #ffffff;
+      --paper: #f7f9fc;
+      --green: #147a4f;
+      --amber: #a86200;
+      --shadow: 0 18px 44px rgba(24, 40, 77, 0.16);
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html {
-      min-height: 100%;
-    }
-
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       color: var(--ink);
       background:
-        linear-gradient(135deg, rgba(20, 35, 61, 0.92), rgba(25, 49, 76, 0.84) 38%, rgba(15, 87, 84, 0.74)),
-        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 88px),
-        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 88px),
-        #14233d;
+        linear-gradient(120deg, rgba(71, 116, 189, 0.12), rgba(20, 122, 79, 0.08)),
+        var(--paper);
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(120deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 100%),
-        linear-gradient(160deg, transparent 0 52%, rgba(255, 255, 255, 0.08) 52% 52.4%, transparent 52.4% 100%);
-      background-size: 180px 180px, 100% 100%;
-      opacity: 0.55;
-      mix-blend-mode: screen;
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto;
     }
 
-    button {
-      min-height: 40px;
-      border: 1px solid transparent;
-      border-radius: 7px;
-      padding: 0 14px;
-      font: inherit;
-      font-size: 0.9rem;
-      font-weight: 750;
-      cursor: pointer;
-      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease, background 140ms ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-    }
-
-    button:focus-visible,
-    .sector:focus-visible,
-    .bucket:focus-visible {
-      outline: 3px solid rgba(245, 158, 11, 0.72);
-      outline-offset: 2px;
-    }
-
-    button.primary {
-      background: var(--navy);
-      color: #fff;
-      box-shadow: 0 12px 24px rgba(20, 35, 61, 0.24);
-    }
-
-    button.secondary {
-      background: #eef3f8;
-      color: var(--navy);
-      border-color: rgba(20, 35, 61, 0.1);
-    }
-
-    button.ghost {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.22);
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.56;
-      transform: none;
-    }
-
-    .app {
-      position: relative;
-      z-index: 1;
-      width: min(1240px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 28px 0 34px;
-    }
-
-    .masthead {
+    .topbar {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 20px;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
       align-items: end;
       margin-bottom: 18px;
-      color: #fff;
-    }
-
-    .eyebrow {
-      margin: 0 0 8px;
-      color: rgba(255, 255, 255, 0.72);
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
     }
 
     h1 {
-      margin: 0;
-      max-width: 820px;
-      font-size: clamp(2rem, 5vw, 4.35rem);
-      line-height: 0.98;
+      margin: 0 0 8px;
+      font-size: clamp(1.65rem, 4vw, 2.6rem);
+      line-height: 1.08;
       letter-spacing: 0;
     }
 
-    .scoreboard {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(92px, 1fr));
-      min-width: min(430px, 100%);
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(14px);
-    }
-
-    .score-item {
-      padding: 14px 16px;
-      border-right: 1px solid rgba(255, 255, 255, 0.16);
-    }
-
-    .score-item:last-child {
-      border-right: 0;
-    }
-
-    .score-item span {
-      display: block;
-      color: rgba(255, 255, 255, 0.66);
-      font-size: 0.75rem;
-      font-weight: 780;
-      text-transform: uppercase;
-    }
-
-    .score-item strong {
-      display: block;
-      margin-top: 5px;
-      font-size: 1.55rem;
-      line-height: 1;
-    }
-
-    .panel {
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-
-    .toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 14px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.6);
-    }
-
-    .status {
-      min-height: 22px;
+    .subtitle {
       margin: 0;
+      max-width: 780px;
       color: var(--muted);
-      font-size: 0.94rem;
-      font-weight: 650;
-      line-height: 1.4;
+      font-size: 1rem;
+      line-height: 1.45;
     }
 
-    .actions {
+    .controls {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
       justify-content: flex-end;
+    }
+
+    button {
+      min-height: 42px;
+      border: 0;
+      border-radius: 6px;
+      padding: 0 16px;
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(45, 87, 152, 0.2);
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    button.secondary {
+      background: #dde6f5;
+      color: var(--blue-dark);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.68;
+    }
+
+    button:focus-visible,
+    .chip:focus-visible,
+    .dropzone:focus-visible {
+      outline: 3px solid #f2b94b;
+      outline-offset: 2px;
     }
 
     .workspace {
       display: grid;
-      grid-template-columns: minmax(240px, 0.88fr) minmax(0, 1.12fr) minmax(0, 1.12fr);
-      gap: 0;
-      min-height: 600px;
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 18px;
+      align-items: start;
     }
 
-    .column {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      border-right: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.36);
+    .table-shell,
+    .palette,
+    .sources {
+      border: 1px solid #d9e0ee;
+      background: #fff;
+      box-shadow: var(--shadow);
     }
 
-    .column:last-child {
-      border-right: 0;
+    .table-shell {
+      overflow: auto;
+      border-radius: 8px;
     }
 
-    .column-head {
-      padding: 18px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.54);
+    table {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: collapse;
+      table-layout: fixed;
     }
 
-    .column-title {
+    th,
+    td {
+      border: 2px solid var(--line);
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    thead th {
+      background: var(--blue);
+      color: #fff;
+      font-size: 1.35rem;
+      line-height: 1.25;
+    }
+
+    thead th:first-child,
+    tbody th {
+      width: 31%;
+    }
+
+    tbody th {
+      color: #05070a;
+      font-size: 1.12rem;
+      font-weight: 500;
+    }
+
+    tbody tr:nth-child(odd) th,
+    tbody tr:nth-child(odd) td {
+      background: var(--row-a);
+    }
+
+    tbody tr:nth-child(even) th,
+    tbody tr:nth-child(even) td {
+      background: var(--row-b);
+    }
+
+    .dropzone {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin: 0;
-      color: var(--navy);
-      font-size: 1.05rem;
+      justify-content: center;
+      width: 100%;
+      min-height: 58px;
+      border: 2px dashed rgba(45, 87, 152, 0.55);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--muted);
+      font-size: 1.08rem;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .dropzone.over {
+      transform: translateY(-1px);
+      border-color: var(--blue-dark);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .dropzone.filled {
+      border-style: solid;
+      border-color: rgba(16, 21, 32, 0.2);
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .metric-value {
+      display: grid;
+      gap: 5px;
+      color: var(--ink);
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .metric-value span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .palette {
+      position: sticky;
+      top: 18px;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .palette h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
       letter-spacing: 0;
     }
 
-    .count {
-      min-width: 34px;
-      border-radius: 999px;
-      padding: 4px 9px;
-      background: #e6edf5;
-      color: #35445d;
-      text-align: center;
-      font-size: 0.82rem;
-      font-weight: 850;
-    }
-
-    .column-note {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 0.86rem;
-      line-height: 1.4;
-    }
-
-    .bucket {
-      flex: 1;
+    .chip-stack {
       display: grid;
-      align-content: start;
       gap: 10px;
-      min-height: 230px;
-      padding: 14px;
-      transition: background 140ms ease, box-shadow 140ms ease;
     }
 
-    .bucket.is-over {
-      background: rgba(37, 99, 235, 0.08);
-      box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.2);
-    }
-
-    .sector {
-      display: grid;
-      gap: 8px;
-      min-height: 112px;
-      border: 1px solid rgba(20, 35, 61, 0.12);
-      border-left: 4px solid var(--blue);
-      border-radius: var(--radius);
-      padding: 14px;
-      background: var(--surface-strong);
-      box-shadow: 0 12px 28px rgba(20, 35, 61, 0.08);
+    .chip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      border: 1px solid rgba(45, 87, 152, 0.22);
+      border-radius: 6px;
+      background: #edf3ff;
+      color: var(--blue-dark);
       cursor: grab;
+      font-size: 1.05rem;
+      font-weight: 800;
       user-select: none;
-      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease, opacity 140ms ease;
     }
 
-    .sector:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 34px rgba(20, 35, 61, 0.12);
-    }
-
-    .sector:active {
+    .chip:active {
       cursor: grabbing;
     }
 
-    .sector.selected {
-      border-color: rgba(37, 99, 235, 0.52);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 18px 36px rgba(20, 35, 61, 0.14);
-    }
-
-    .sector.correct {
-      border-left-color: var(--green);
-    }
-
-    .sector.incorrect {
-      border-left-color: var(--red);
-    }
-
-    .sector.moved {
-      min-height: 96px;
-    }
-
-    .sector-top {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .sector-name {
-      margin: 0;
-      color: var(--navy);
-      font-size: 1rem;
-      line-height: 1.2;
-      letter-spacing: 0;
-    }
-
-    .badge {
-      flex: 0 0 auto;
-      border-radius: 999px;
-      padding: 4px 8px;
-      background: #eef3f8;
-      color: #40516b;
-      font-size: 0.72rem;
-      font-weight: 850;
-      text-transform: uppercase;
-    }
-
-    .sector-detail {
-      margin: 0;
+    .status {
+      min-height: 24px;
+      margin: 12px 0 0;
       color: var(--muted);
-      font-size: 0.84rem;
-      line-height: 1.38;
-    }
-
-    .sector-actions {
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 2px;
-    }
-
-    .sector-actions button {
-      min-height: 34px;
-      padding: 0 9px;
-      font-size: 0.78rem;
-      box-shadow: none;
-    }
-
-    .sector-actions .move-high {
-      background: rgba(37, 99, 235, 0.1);
-      color: #1d4ed8;
-      border-color: rgba(37, 99, 235, 0.16);
-    }
-
-    .sector-actions .move-low {
-      background: rgba(15, 118, 110, 0.1);
-      color: #0f766e;
-      border-color: rgba(15, 118, 110, 0.18);
-    }
-
-    .sector.unassigned .sector-actions {
-      display: grid;
-    }
-
-    .result-line {
-      display: none;
-      margin: 2px 0 0;
-      color: var(--muted);
-      font-size: 0.82rem;
-      line-height: 1.35;
-    }
-
-    .review .result-line {
-      display: block;
-    }
-
-    .review .sector.incorrect .result-line {
-      color: var(--red);
-    }
-
-    .review .sector.correct .result-line {
-      color: var(--green);
-    }
-
-    .empty {
-      display: none;
-      min-height: 120px;
-      place-items: center;
-      border: 1px dashed rgba(20, 35, 61, 0.2);
-      border-radius: var(--radius);
-      color: #758197;
-      font-size: 0.92rem;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .bucket:empty + .empty {
-      display: grid;
-    }
-
-    .mobile-targets {
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      padding: 0 14px 14px;
-      background: rgba(255, 255, 255, 0.36);
-    }
-
-    .mobile-targets button {
-      min-height: 44px;
-    }
-
-    .completion-prompt {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 14px;
-      border-bottom: 1px solid rgba(183, 121, 31, 0.22);
-      background: rgba(255, 248, 235, 0.92);
-    }
-
-    .completion-prompt.visible {
-      display: flex;
-    }
-
-    .completion-prompt p {
-      margin: 0;
-      color: #5f4214;
-      font-size: 0.94rem;
-      font-weight: 720;
+      font-size: 0.95rem;
       line-height: 1.4;
     }
 
-    .prompt-actions {
-      display: flex;
-      flex: 0 0 auto;
-      gap: 10px;
+    .scoreline {
+      margin-top: 12px;
+      border-top: 1px solid #d9e0ee;
+      padding-top: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
 
-    @media (max-width: 980px) {
-      .app {
-        width: min(100% - 22px, 760px);
-        padding-top: 18px;
+    .scoreline strong {
+      color: var(--ink);
+    }
+
+    .sources {
+      margin-top: 18px;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .sources a {
+      color: var(--blue-dark);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 860px) {
+      main {
+        width: min(100% - 20px, 1180px);
+        margin-top: 16px;
       }
 
-      .masthead {
+      .topbar,
+      .workspace {
         grid-template-columns: 1fr;
       }
 
-      .scoreboard {
-        min-width: 0;
-      }
-
-      .toolbar {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .actions {
+      .controls {
         justify-content: stretch;
       }
 
-      .actions button {
+      button {
         flex: 1 1 150px;
       }
 
-      .workspace {
-        grid-template-columns: 1fr;
-        min-height: 0;
+      .palette {
+        position: static;
+        order: -1;
       }
 
-      .column {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
+      .chip-stack {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .column:last-child {
-        border-bottom: 0;
+      thead th {
+        font-size: 1.05rem;
       }
 
-      .bucket {
-        min-height: 180px;
-      }
-
-      .mobile-targets {
-        display: grid;
-      }
-
-      .completion-prompt {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .prompt-actions button {
-        flex: 1 1 120px;
-      }
-    }
-
-    @media (max-width: 560px) {
-      .app {
-        width: min(100% - 16px, 760px);
-      }
-
-      h1 {
-        font-size: clamp(1.95rem, 13vw, 3.2rem);
-      }
-
-      .scoreboard {
-        grid-template-columns: 1fr;
-      }
-
-      .score-item {
-        border-right: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-      }
-
-      .score-item:last-child {
-        border-bottom: 0;
-      }
-
-      .column-head {
-        padding: 15px;
-      }
-
-      .bucket {
-        padding: 12px;
+      th,
+      td {
+        padding: 10px;
       }
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header class="masthead">
+  <main>
+    <section class="topbar" aria-labelledby="title">
       <div>
-        <p class="eyebrow">Finance training module</p>
-        <h1>Operating Gearing Sector Sorter</h1>
+        <h1 id="title">UK Company Risk Comparison</h1>
+        <p class="subtitle">Drag either High or Low into every company box. Use High for the larger figure in that row, then reveal the numbers to check the comparison.</p>
       </div>
-      <section class="scoreboard" aria-label="Progress">
-        <div class="score-item">
-          <span>Allocated</span>
-          <strong id="allocatedScore">0/10</strong>
-        </div>
-        <div class="score-item">
-          <span>High</span>
-          <strong id="highScore">0</strong>
-        </div>
-        <div class="score-item">
-          <span>Low</span>
-          <strong id="lowScore">0</strong>
-        </div>
-      </section>
-    </header>
+      <div class="controls">
+        <button type="button" id="revealBtn">Reveal numbers</button>
+        <button type="button" class="secondary" id="resetBtn">Reset</button>
+      </div>
+    </section>
 
-    <section class="panel" id="appPanel">
-      <div class="toolbar">
-        <p class="status" id="status">Allocate each sector into a gearing group.</p>
-        <div class="actions">
-          <button class="primary" type="button" id="checkBtn">Check allocation</button>
-          <button class="secondary" type="button" id="clearBtn">Clear review</button>
-          <button class="secondary" type="button" id="resetBtn">Reset</button>
-        </div>
+    <section class="workspace">
+      <div class="table-shell">
+        <table aria-label="AstraZeneca and Shell financial comparison">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">AstraZeneca PLC (AZN.L)</th>
+              <th scope="col">Shell plc (SHEL.L)</th>
+            </tr>
+          </thead>
+          <tbody id="metricBody"></tbody>
+        </table>
       </div>
 
-      <div class="completion-prompt" id="completionPrompt">
-        <p>Do you want me to allocate remaining industries?</p>
-        <div class="prompt-actions">
-          <button class="primary" type="button" id="autoAllocateBtn">Yes</button>
-          <button class="secondary" type="button" id="continueBtn">No</button>
+      <aside class="palette" aria-label="Answer choices">
+        <h2>Drag words</h2>
+        <div class="chip-stack">
+          <div class="chip" draggable="true" tabindex="0" role="button" data-choice="high" aria-label="High">High</div>
+          <div class="chip" draggable="true" tabindex="0" role="button" data-choice="low" aria-label="Low">Low</div>
         </div>
-      </div>
+        <p class="status" id="status">Drop a word into each empty box. You can also click High or Low, then click a box.</p>
+        <p class="scoreline hidden" id="scoreline"></p>
+      </aside>
+    </section>
 
-      <div class="mobile-targets" aria-label="Selected sector allocation">
-        <button class="secondary" type="button" data-mobile-target="high">Move to High</button>
-        <button class="secondary" type="button" data-mobile-target="low">Move to Low</button>
-      </div>
-
-      <div class="workspace">
-        <section class="column">
-          <div class="column-head">
-            <h2 class="column-title">Unallocated sectors <span class="count" id="unassignedCount">10</span></h2>
-            <p class="column-note">Select a sector, then assign it to a group.</p>
-          </div>
-          <div class="bucket" id="unassignedBucket" data-group="unassigned" tabindex="0" aria-label="Unallocated sectors"></div>
-          <div class="empty">No sectors waiting</div>
-        </section>
-
-        <section class="column">
-          <div class="column-head">
-            <h2 class="column-title">High operating gearing <span class="count" id="highCount">0</span></h2>
-            <p class="column-note">Profit is more sensitive to revenue change.</p>
-          </div>
-          <div class="bucket" id="highBucket" data-group="high" tabindex="0" aria-label="High operating gearing"></div>
-          <div class="empty">Drop sectors here</div>
-        </section>
-
-        <section class="column">
-          <div class="column-head">
-            <h2 class="column-title">Low operating gearing <span class="count" id="lowCount">0</span></h2>
-            <p class="column-note">Costs flex more directly with activity.</p>
-          </div>
-          <div class="bucket" id="lowBucket" data-group="low" tabindex="0" aria-label="Low operating gearing"></div>
-          <div class="empty">Drop sectors here</div>
-        </section>
-      </div>
+    <section class="sources hidden" id="sources">
+      <strong>Sources checked 10 June 2026:</strong>
+      StockAnalysis company statistics for
+      <a href="https://stockanalysis.com/quote/lon/AZN/statistics/">AstraZeneca</a>
+      and <a href="https://stockanalysis.com/quote/lon/SHEL/statistics/">Shell</a>;
+      StockAnalysis quarterly financials for
+      <a href="https://stockanalysis.com/stocks/azn/financials/?p=quarterly">AstraZeneca</a>;
+      Shell Q1 2026 income figures from
+      <a href="https://www.shell.com/investors/results-and-reporting/quarterly-results/_jcr_content/root/main/section/simple_copy/promo_1962010312_cop/links/item1.stream/1778115266512/cad4d5b6af7a44f1bb371e2ea4c468ad5125af11/q1-2026-qra-document.pdf">Shell first-quarter 2026 results</a>.
     </section>
   </main>
 
   <script>
-    const sectors = [
+    const metrics = [
       {
-        id: "airlines",
-        name: "Airlines",
-        tag: "Transport",
-        answer: "high",
-        clue: "Aircraft, crews, airport slots and leases create a large fixed-cost base.",
-        rationale: "High: airlines carry large fixed costs before a flight earns revenue. Aircraft leases or depreciation, maintenance programs, airport slots, route planning, salaried crew, systems and insurance are committed whether the plane is full or half empty.",
-        explanation: "The cost structure is dominated by fixed and semi-fixed commitments. Fuel and some catering vary with flights and distance, but the expensive part is putting aircraft, crews and routes in place. Once the aircraft is scheduled, selling extra seats can add high-margin revenue, while weak demand can quickly turn profit into loss."
+        label: "Quarterly earnings growth (YoY)",
+        azn: { value: "5.62%", rank: "low", note: "latest quarter net income growth" },
+        shel: { value: "19.12%", rank: "high", note: "Q1 2026 vs Q1 2025 income attributable" }
       },
       {
-        id: "saas",
-        name: "Software / SaaS",
-        tag: "Technology",
-        answer: "high",
-        clue: "Product development and platform costs are mostly incurred before each extra sale.",
-        rationale: "High: software businesses spend heavily upfront on engineering, product development, cloud architecture, security, sales platforms and customer success capacity. Those costs do not rise in direct proportion to every new user.",
-        explanation: "The cost structure has a high fixed-cost base and low marginal cost. Adding a new customer may require hosting, support and onboarding, but the software code is already built. That means revenue growth can lift profit quickly once scale is reached, while slower growth leaves the fixed development and platform cost base to absorb."
+        label: "Profit margin",
+        azn: { value: "17.19%", rank: "high", note: "TTM" },
+        shel: { value: "7.01%", rank: "low", note: "TTM" }
       },
       {
-        id: "grocery",
-        name: "Supermarkets / Grocery Retail",
-        tag: "Retail",
-        answer: "low",
-        clue: "A large share of cost moves with the volume of goods sold.",
-        rationale: "Low: supermarkets have stores and distribution centres, but the largest cost is usually the goods bought for resale. Inventory, supplier costs, logistics activity and some store labour move closely with sales volume.",
-        explanation: "The cost structure is more variable than asset-heavy sectors. If sales fall, the business buys fewer groceries and reduces replenishment activity. Rent and core staffing still matter, but the cost of goods sold is so significant that profit is usually less leveraged to small changes in revenue than in sectors with very high fixed infrastructure costs."
+        label: "Operating margin",
+        azn: { value: "24.75%", rank: "high", note: "TTM" },
+        shel: { value: "11.49%", rank: "low", note: "TTM" }
       },
       {
-        id: "hotels",
-        name: "Hotels",
-        tag: "Hospitality",
-        answer: "high",
-        clue: "Property, maintenance and baseline staffing costs remain even when occupancy falls.",
-        rationale: "High: hotels must carry property, lease or financing costs, maintenance, reception cover, utilities, systems and a baseline operating team even when occupancy is weak.",
-        explanation: "The cost structure depends heavily on fixed capacity. A hotel cannot easily shrink the building when fewer rooms are booked. Cleaning and breakfast costs vary with guests, but the rooms, lobby, systems, security and management costs remain. Extra occupancy can therefore be highly profitable, while empty rooms create a sharp profit drag."
+        label: "ROE",
+        azn: { value: "23.48%", rank: "high", note: "TTM" },
+        shel: { value: "10.70%", rank: "low", note: "TTM" }
       },
       {
-        id: "utilities",
-        name: "Utilities",
-        tag: "Infrastructure",
-        answer: "high",
-        clue: "Networks and generation assets require heavy upfront capital investment.",
-        rationale: "High: utilities require networks, generation assets, pipelines, meters, control systems and regulated infrastructure. These assets must be financed, maintained and depreciated regardless of short-term demand.",
-        explanation: "The cost structure is capital intensive and fixed. Building and maintaining the network is the major economic burden. The variable cost of serving one more household can be relatively small compared with the asset base, so utilisation and allowed returns on infrastructure have a large effect on operating profit."
+        label: "Leverage (Debt/Equity)",
+        azn: { value: "0.72", rank: "high", note: "latest reported" },
+        shel: { value: "0.43", rank: "low", note: "latest reported" }
       },
       {
-        id: "consulting",
-        name: "Consulting / Professional Services",
-        tag: "Services",
-        answer: "low",
-        clue: "Staffing can usually be matched more closely to client demand.",
-        rationale: "Low: consulting and professional services rely mainly on people rather than heavy physical assets. Salaries are important, but project teams, contractors, utilisation and hiring can be adjusted more directly over time.",
-        explanation: "The cost structure is labour based rather than infrastructure based. If demand slows, firms can reduce contractors, delay hiring, reassign staff or manage utilisation. There are fixed costs such as offices, partners, systems and training, but the model is usually less fixed-cost intensive than airlines, telecoms or utilities."
+        label: "Beta",
+        azn: { value: "0.21", rank: "high", note: "5Y beta" },
+        shel: { value: "-0.25", rank: "low", note: "5Y beta" }
       },
       {
-        id: "manufacturing",
-        name: "Manufacturing",
-        tag: "Industrial",
-        answer: "high",
-        clue: "Factories, equipment and depreciation make utilisation important.",
-        rationale: "High: manufacturers often commit to factories, machinery, tooling, maintenance teams, quality systems and depreciation before products are sold. Those costs make production volume and capacity utilisation critical.",
-        explanation: "The cost structure combines fixed plant costs with variable materials and labour. If a factory is underused, rent, depreciation, maintenance and supervision still run through the income statement. Once volumes rise, the same factory can spread fixed costs across more units, improving margins quickly."
-      },
-      {
-        id: "mining",
-        name: "Mining",
-        tag: "Resources",
-        answer: "high",
-        clue: "Mines, processing assets and safety systems carry large standing costs.",
-        rationale: "High: mining requires exploration, mine development, heavy equipment, processing plants, safety systems, environmental compliance and site infrastructure. Much of this cost exists before each tonne is sold.",
-        explanation: "The cost structure is asset heavy and long term. Trucks, crushers, shafts, processing facilities and site services are expensive to run and maintain even when commodity prices or volumes weaken. Higher output can spread fixed site costs, but lower output can leave the mine with a heavy cost base and weaker margins."
-      },
-      {
-        id: "restaurants",
-        name: "Restaurants / Food Service",
-        tag: "Consumer",
-        answer: "low",
-        clue: "Food inputs and hourly labour often move with trading volumes.",
-        rationale: "Low: restaurants do have fixed rent, equipment and manager costs, but ingredients, packaging, hourly labour and some delivery costs move with customer volumes.",
-        explanation: "The cost structure has a meaningful variable-cost component. If fewer meals are sold, the restaurant buys fewer ingredients and can often schedule fewer hourly staff. Fixed rent still creates pressure, especially for individual locations, but compared with utilities, telecoms or airlines, more of the cost base flexes with sales."
-      },
-      {
-        id: "telecoms",
-        name: "Telecommunications",
-        tag: "Networks",
-        answer: "high",
-        clue: "Network build-out and spectrum costs are committed ahead of usage.",
-        rationale: "High: telecom operators invest heavily in spectrum, towers, fibre networks, switching equipment, data centres, licences and network maintenance. These costs are largely committed before customer usage occurs.",
-        explanation: "The cost structure is network based and fixed-cost intensive. Once the network exists, serving extra data usage or another subscriber may be relatively low cost compared with the original build-out. That creates scale economics, but it also means weak customer growth leaves a large network cost base to cover."
+        label: "Overall risk",
+        azn: { value: "Higher relative risk", rank: "high", note: "higher beta and leverage in this comparison" },
+        shel: { value: "Lower relative risk", rank: "low", note: "lower beta and leverage in this comparison" }
       }
     ];
 
-    const buckets = {
-      unassigned: document.getElementById("unassignedBucket"),
-      high: document.getElementById("highBucket"),
-      low: document.getElementById("lowBucket")
-    };
+    const state = {};
+    let selectedChoice = "";
+    let revealed = false;
 
-    const state = new Map(sectors.map((sector) => [sector.id, "unassigned"]));
-    let selectedSector = "";
-    let reviewMode = false;
-
-    const appPanel = document.getElementById("appPanel");
+    const body = document.getElementById("metricBody");
     const status = document.getElementById("status");
-    const checkBtn = document.getElementById("checkBtn");
-    const clearBtn = document.getElementById("clearBtn");
+    const revealBtn = document.getElementById("revealBtn");
     const resetBtn = document.getElementById("resetBtn");
-    const completionPrompt = document.getElementById("completionPrompt");
-    const autoAllocateBtn = document.getElementById("autoAllocateBtn");
-    const continueBtn = document.getElementById("continueBtn");
-    const allocatedScore = document.getElementById("allocatedScore");
-    const highScore = document.getElementById("highScore");
-    const lowScore = document.getElementById("lowScore");
-    const unassignedCount = document.getElementById("unassignedCount");
-    const highCount = document.getElementById("highCount");
-    const lowCount = document.getElementById("lowCount");
+    const sources = document.getElementById("sources");
+    const scoreline = document.getElementById("scoreline");
+    const chips = Array.from(document.querySelectorAll(".chip"));
+
+    function cellId(metricIndex, company) {
+      return `${metricIndex}-${company}`;
+    }
+
+    function choiceLabel(choice) {
+      return choice ? choice.charAt(0).toUpperCase() + choice.slice(1) : "Drop High or Low";
+    }
 
     function render() {
-      Object.values(buckets).forEach((bucket) => {
-        bucket.innerHTML = "";
+      body.innerHTML = "";
+
+      metrics.forEach((metric, index) => {
+        const row = document.createElement("tr");
+        const heading = document.createElement("th");
+        heading.scope = "row";
+        heading.textContent = metric.label;
+        row.appendChild(heading);
+
+        ["azn", "shel"].forEach((company) => {
+          const td = document.createElement("td");
+          const id = cellId(index, company);
+
+          if (revealed) {
+            const result = document.createElement("div");
+            result.className = "metric-value";
+            result.innerHTML = `${metric[company].value}<span>${metric[company].rank.toUpperCase()} - ${metric[company].note}</span>`;
+            td.appendChild(result);
+          } else {
+            const zone = document.createElement("div");
+            zone.className = `dropzone${state[id] ? " filled" : ""}`;
+            zone.tabIndex = 0;
+            zone.dataset.id = id;
+            zone.textContent = choiceLabel(state[id]);
+            zone.setAttribute("role", "button");
+            zone.setAttribute("aria-label", `${metric.label}, ${company === "azn" ? "AstraZeneca" : "Shell"}, ${zone.textContent}`);
+            td.appendChild(zone);
+          }
+
+          row.appendChild(td);
+        });
+
+        body.appendChild(row);
       });
 
-      sectors.forEach((sector) => {
-        const group = state.get(sector.id);
-        buckets[group].appendChild(createSectorTile(sector, group));
-      });
-
-      updateCounts();
-      appPanel.classList.toggle("review", reviewMode);
-      clearBtn.disabled = !reviewMode;
+      if (!revealed) {
+        attachDropzones();
+      }
     }
 
-    function createSectorTile(sector, group) {
-      const tile = document.createElement("article");
-      const isAnswered = group === "high" || group === "low";
-      const isCorrect = isAnswered && group === sector.answer;
-      const isIncorrect = isAnswered && group !== sector.answer;
-      const detailText = getDetailText(sector, group, isIncorrect);
-      const resultText = getResultText(sector, group, isAnswered, isCorrect);
+    function attachDropzones() {
+      document.querySelectorAll(".dropzone").forEach((zone) => {
+        zone.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          zone.classList.add("over");
+        });
 
-      tile.className = [
-        "sector",
-        group === "unassigned" ? "unassigned" : "moved",
-        selectedSector === sector.id ? "selected" : "",
-        reviewMode && isCorrect ? "correct" : "",
-        reviewMode && isIncorrect ? "incorrect" : ""
-      ].filter(Boolean).join(" ");
+        zone.addEventListener("dragleave", () => zone.classList.remove("over"));
 
-      tile.draggable = true;
-      tile.tabIndex = 0;
-      tile.dataset.id = sector.id;
-      tile.setAttribute("aria-label", `${sector.name}, ${sector.tag}`);
-      tile.innerHTML = `
-        <div class="sector-top">
-          <h3 class="sector-name">${sector.name}</h3>
-          <span class="badge">${sector.tag}</span>
-        </div>
-        <p class="sector-detail">${detailText}</p>
-        <p class="result-line">${resultText}</p>
-        <div class="sector-actions">
-          <button type="button" class="move-high" data-action="high">High</button>
-          <button type="button" class="move-low" data-action="low">Low</button>
-        </div>
-      `;
+        zone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          zone.classList.remove("over");
+          setChoice(zone.dataset.id, event.dataTransfer.getData("text/plain"));
+        });
 
-      tile.addEventListener("click", (event) => {
-        const action = event.target.closest("[data-action]");
-        if (action) {
-          moveSector(sector.id, action.dataset.action);
-          return;
-        }
-        selectedSector = selectedSector === sector.id ? "" : sector.id;
-        status.textContent = selectedSector ? `${sector.name} selected.` : "Selection cleared.";
-        render();
+        zone.addEventListener("click", () => {
+          if (selectedChoice) {
+            setChoice(zone.dataset.id, selectedChoice);
+          }
+        });
+
+        zone.addEventListener("keydown", (event) => {
+          if ((event.key === "Enter" || event.key === " ") && selectedChoice) {
+            event.preventDefault();
+            setChoice(zone.dataset.id, selectedChoice);
+          }
+        });
+      });
+    }
+
+    function setChoice(id, choice) {
+      if (choice !== "high" && choice !== "low") return;
+      state[id] = choice;
+      status.textContent = `${choiceLabel(choice)} placed.`;
+      render();
+    }
+
+    function getResult() {
+      let answered = 0;
+      let correct = 0;
+
+      metrics.forEach((metric, index) => {
+        ["azn", "shel"].forEach((company) => {
+          const id = cellId(index, company);
+          if (!state[id]) return;
+          answered += 1;
+          if (state[id] === metric[company].rank) correct += 1;
+        });
       });
 
-      tile.addEventListener("keydown", (event) => {
+      return { answered, correct, total: metrics.length * 2 };
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener("dragstart", (event) => {
+        event.dataTransfer.setData("text/plain", chip.dataset.choice);
+      });
+
+      chip.addEventListener("click", () => {
+        selectedChoice = chip.dataset.choice;
+        chips.forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
+        status.textContent = `${choiceLabel(selectedChoice)} selected. Click a table box to place it.`;
+      });
+
+      chip.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          selectedSector = selectedSector === sector.id ? "" : sector.id;
-          status.textContent = selectedSector ? `${sector.name} selected.` : "Selection cleared.";
-          render();
+          chip.click();
         }
-      });
-
-      tile.addEventListener("dragstart", (event) => {
-        selectedSector = sector.id;
-        event.dataTransfer.setData("text/plain", sector.id);
-        event.dataTransfer.effectAllowed = "move";
-      });
-
-      return tile;
-    }
-
-    function getDetailText(sector, group, isIncorrect) {
-      if (!reviewMode) return sector.clue;
-      if (!isIncorrect) return sector.rationale;
-
-      return `You allocated this to ${labelForGroup(group)}, but it should be classified as ${labelForGroup(sector.answer)}. ${sector.explanation}`;
-    }
-
-    function getResultText(sector, group, isAnswered, isCorrect) {
-      if (!isAnswered) return `Unallocated: correct group is ${labelForGroup(sector.answer)}.`;
-      if (isCorrect) return `Correct: ${labelForGroup(group)}.`;
-      return `Incorrect: move this from ${labelForGroup(group)} to ${labelForGroup(sector.answer)}.`;
-    }
-
-    function removeAnswerPrefix(text) {
-      return text.replace(/^(High|Low):\s*/, "");
-    }
-
-    function lowerFirst(text) {
-      return text.charAt(0).toLowerCase() + text.slice(1);
-    }
-
-    function attachBucketEvents() {
-      Object.values(buckets).forEach((bucket) => {
-        bucket.addEventListener("dragover", (event) => {
-          event.preventDefault();
-          bucket.classList.add("is-over");
-        });
-
-        bucket.addEventListener("dragleave", () => {
-          bucket.classList.remove("is-over");
-        });
-
-        bucket.addEventListener("drop", (event) => {
-          event.preventDefault();
-          bucket.classList.remove("is-over");
-          const id = event.dataTransfer.getData("text/plain");
-          moveSector(id, bucket.dataset.group);
-        });
-
-        bucket.addEventListener("click", (event) => {
-          if (event.target.closest(".sector")) return;
-          if (selectedSector) {
-            moveSector(selectedSector, bucket.dataset.group);
-          }
-        });
-
-        bucket.addEventListener("keydown", (event) => {
-          if ((event.key === "Enter" || event.key === " ") && selectedSector) {
-            event.preventDefault();
-            moveSector(selectedSector, bucket.dataset.group);
-          }
-        });
-      });
-    }
-
-    function moveSector(id, group) {
-      if (!state.has(id) || !buckets[group]) return;
-      state.set(id, group);
-      selectedSector = "";
-      reviewMode = false;
-      hideCompletionPrompt();
-      const sector = sectors.find((item) => item.id === id);
-      status.textContent = `${sector.name} moved to ${labelForGroup(group)}.`;
-      render();
-    }
-
-    function updateCounts() {
-      const high = countGroup("high");
-      const low = countGroup("low");
-      const unassigned = countGroup("unassigned");
-      const allocated = high + low;
-
-      allocatedScore.textContent = `${allocated}/10`;
-      highScore.textContent = String(high);
-      lowScore.textContent = String(low);
-      unassignedCount.textContent = String(unassigned);
-      highCount.textContent = String(high);
-      lowCount.textContent = String(low);
-      checkBtn.disabled = false;
-    }
-
-    function countGroup(group) {
-      return Array.from(state.values()).filter((value) => value === group).length;
-    }
-
-    function labelForGroup(group) {
-      if (group === "high") return "High operating gearing";
-      if (group === "low") return "Low operating gearing";
-      return "Unallocated sectors";
-    }
-
-    function checkAllocation() {
-      const allocated = countGroup("high") + countGroup("low");
-      if (allocated < sectors.length) {
-        showCompletionPrompt();
-        status.textContent = `${sectors.length - allocated} industries still need allocating.`;
-        return;
-      }
-
-      hideCompletionPrompt();
-      const correct = sectors.reduce((total, sector) => {
-        return total + (state.get(sector.id) === sector.answer ? 1 : 0);
-      }, 0);
-
-      reviewMode = true;
-      status.textContent = `${correct} of ${sectors.length} allocations match the model answer.`;
-      render();
-    }
-
-    function clearReview() {
-      reviewMode = false;
-      hideCompletionPrompt();
-      status.textContent = "Review cleared.";
-      render();
-    }
-
-    function reset() {
-      sectors.forEach((sector) => state.set(sector.id, "unassigned"));
-      selectedSector = "";
-      reviewMode = false;
-      hideCompletionPrompt();
-      status.textContent = "Allocate each sector into a gearing group.";
-      render();
-    }
-
-    function showCompletionPrompt() {
-      completionPrompt.classList.add("visible");
-    }
-
-    function hideCompletionPrompt() {
-      completionPrompt.classList.remove("visible");
-    }
-
-    function autoAllocateRemaining() {
-      sectors.forEach((sector) => {
-        if (state.get(sector.id) === "unassigned") {
-          state.set(sector.id, sector.answer);
-        }
-      });
-
-      selectedSector = "";
-      hideCompletionPrompt();
-      reviewMode = true;
-      const correct = sectors.reduce((total, sector) => {
-        return total + (state.get(sector.id) === sector.answer ? 1 : 0);
-      }, 0);
-      status.textContent = `Remaining industries allocated. ${correct} of ${sectors.length} allocations match the model answer.`;
-      render();
-    }
-
-    function continueAllocating() {
-      hideCompletionPrompt();
-      status.textContent = "Continue allocating the remaining industries.";
-    }
-
-    checkBtn.addEventListener("click", checkAllocation);
-    clearBtn.addEventListener("click", clearReview);
-    resetBtn.addEventListener("click", reset);
-    autoAllocateBtn.addEventListener("click", autoAllocateRemaining);
-    continueBtn.addEventListener("click", continueAllocating);
-
-    document.querySelectorAll("[data-mobile-target]").forEach((button) => {
-      button.addEventListener("click", () => {
-        if (!selectedSector) {
-          status.textContent = "Select a sector first.";
-          return;
-        }
-        moveSector(selectedSector, button.dataset.mobileTarget);
       });
     });
 
-    attachBucketEvents();
+    revealBtn.addEventListener("click", () => {
+      if (revealed) return;
+
+      const result = getResult();
+      revealed = true;
+      revealBtn.textContent = "Numbers revealed";
+      revealBtn.disabled = true;
+      sources.classList.remove("hidden");
+      scoreline.classList.remove("hidden");
+      scoreline.innerHTML = `<strong>${result.correct}</strong> of <strong>${result.answered}</strong> answered boxes matched the high/low comparison.`;
+      status.textContent = `${result.answered} of ${result.total} boxes answered before reveal.`;
+      render();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      Object.keys(state).forEach((key) => delete state[key]);
+      selectedChoice = "";
+      revealed = false;
+      revealBtn.disabled = false;
+      revealBtn.textContent = "Reveal numbers";
+      sources.classList.add("hidden");
+      scoreline.classList.add("hidden");
+      scoreline.textContent = "";
+      status.textContent = "Drop a word into each empty box. You can also click High or Low, then click a box.";
+      chips.forEach((chip) => chip.removeAttribute("aria-pressed"));
+      render();
+    });
+
     render();
   </script>
 </body>
